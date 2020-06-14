@@ -12,31 +12,10 @@ import java.util.InputMismatchException;
 public class ContactsRoll	{
 
 	private static int index = 0;
-	private static Contact[] contactRoll = new Contact[10];
+	private static Contact[] contactRoll = new Contact[index+1];
 	private static boolean control = true;
 	private static ObjectOutputStream output;
 	private static ObjectInputStream input;
-
-	private static void resizeArray(Contact[] contactArray)	{
-		int i = 0;
-		Contact[] tempArray;
-		if (index >= (contactRoll.length*0.5))	{
-			tempArray = new Contact[contactRoll.length];
-			for (i = 0; i < contactRoll.length; i++)
-				tempArray[i] = contactRoll[i];
-			contactRoll = new Contact[index*2];
-			for (i = 0; i < contactRoll.length; i++)
-				contactRoll[i] = tempArray[i];
-		}
-		if (index <= (contactRoll.length*0.25))	{
-			tempArray = new Contact[contactRoll.length];		
-			for (i = 0; i < contactRoll.length; i++)
-				tempArray[i] = contactRoll[i];
-			contactRoll = new Contact[(int)tempArray.length/2];
-			for (i = 0; i < contactRoll.length; i++)
-				contactRoll[i] = tempArray[i];
-		}
-	}
 
 	private static void openFile()	{
 		try	{
@@ -176,7 +155,7 @@ public class ContactsRoll	{
 		while (control)	{
 			System.out.println("Enter the contact's cellphone number, followed by <Enter>.");
 			try	{
-				cellphoneNumber = input.next();
+				cellphoneNumber = input.nextLine();
 				control = false;
 			}
 			catch (NoSuchElementException e)	{
@@ -267,7 +246,6 @@ public class ContactsRoll	{
 		control = true;
 		while (control)	{
 			System.out.println("Enter the city of the contact's address, followed by <Enter>.");
-			input.nextLine();
 			try	{
 				city = input.nextLine();
 				control = false;
@@ -284,7 +262,6 @@ public class ContactsRoll	{
 		control = true;
 		while (control)	{
 			System.out.println("Enter the province of the contact's address, followed by <Enter>.");
-			input.nextLine();
 			try	{
 				province = input.nextLine();
 				control = false;  
@@ -386,6 +363,35 @@ public class ContactsRoll	{
 		dateOfBirth = new Date(day, month, year);
 		return dateOfBirth;	
 	}
+
+	private static void increaseArraySize()	{
+
+		if (contactRoll[0] == null)
+			;
+		else	{	
+			int i = 0;
+			Contact[] tempArray = new Contact[contactRoll.length];
+			for (i = 0; i < contactRoll.length; i++)
+				tempArray[i] = contactRoll[i];
+			contactRoll = new Contact[tempArray.length+1];
+			for (i = 0; i < contactRoll.length; i++)
+				contactRoll[i] = tempArray[i];
+		}	
+	}
+
+	private static void decreaseArrayLength()	{
+		if (contactRoll[0] == null)
+			System.out.println("There are no more entries in this array. ");
+		else	{
+			int temp = contactRoll.length;
+			Contact[] tempArray = new Contact[temp];
+			for (int i = 0; i < contactRoll.length - 1; i++)
+				tempArray[i] = contactRoll[i];
+			contactRoll = new Contact[temp-1];
+			for (int i = 0; i < temp-1; i++)
+				contactRoll[i] = tempArray[i];
+		}
+	}
 	
 	public static void addContact()	{
 							
@@ -424,6 +430,7 @@ public class ContactsRoll	{
 		if (isDuplicate)
 			System.out.println("The contact details you are adding have already been saved. Try updating the contact.");
 		else	{
+				increaseArraySize();
 				contactRoll[index++] = contact;
 				try	{
 					output.writeObject(contact);
@@ -432,7 +439,6 @@ public class ContactsRoll	{
 					System.err.println("Error writing to file. Terminating.");
 					System.exit(1);
 				}
-				resizeArray(contactRoll);
 				System.out.println("Contact saved to the data structure successfully. Operation terminated.");
 		}
 	}
@@ -447,7 +453,7 @@ public class ContactsRoll	{
 		while (control)	{
 			System.out.println("Enter the last name followed by <Enter>.");
 			try	{
-				lastName = input.next();
+				lastName = input.nextLine();
 				control = false;
 			}
 			catch (NoSuchElementException e)	{
@@ -462,7 +468,7 @@ public class ContactsRoll	{
 		while (control)	{
 			System.out.println("Enter the first name, followed by <Enter>.");
 			try	{
-				firstName = input.next();
+				firstName = input.nextLine();
 				control = false;
 			}
 			catch (NoSuchElementException e)	{
@@ -479,13 +485,13 @@ public class ContactsRoll	{
 		if (tempIndex == -1)
 			System.out.println("No record found of referenced contact.");
 		else	{
-			contactRoll[tempIndex] = null;
 			int i = tempIndex;
-			for (i = tempIndex; i < contactRoll.length; i++)
+			for (i = tempIndex; i < contactRoll.length-1; i++)
 				contactRoll[i] = contactRoll[i+1];
+			contactRoll[contactRoll.length-1] = null;
+			decreaseArrayLength();
 			System.out.println("Contact deleted successfully.");
 		}
-		resizeArray(contactRoll);
 	}
 
 	public static void displayContact()	{
@@ -498,7 +504,7 @@ public class ContactsRoll	{
 		while (control)	{
 			System.out.println("Enter the last name followed by <Enter>.");
 			try	{
-				lastName = input.next();
+				lastName = input.nextLine();
 				control = false;
 			}
 			catch (NoSuchElementException e)	{
@@ -513,7 +519,7 @@ public class ContactsRoll	{
 		while (control)	{
 			System.out.println("Enter the first name, followed by <Enter>.");
 			try	{
-				firstName = input.next();
+				firstName = input.nextLine();
 				control = false;
 			}
 			catch (NoSuchElementException e)	{
@@ -526,6 +532,7 @@ public class ContactsRoll	{
 		}
 		name = new Name(firstName, lastName);
 		
+		Arrays.sort(contactRoll);
 		tempIndex = search(contactRoll, name);
 		if (tempIndex == -1)
 			System.out.println("There is no record of the refenced contact.");
@@ -538,6 +545,90 @@ public class ContactsRoll	{
 			System.out.println(c.toString());
 	}
 
+	public static void updateContact()	{
+		Name name = null;
+		int tempIndex = 0, controlValue = 0;
+		boolean control = true;
+
+		name = scanForName();
+		Arrays.sort(contactRoll);
+		tempIndex = search(contactRoll, name);
+		Scanner input = new Scanner(System.in);
+		while (control)	{
+			}
+		if (tempIndex == -1)
+			System.out.println("Name entered does not match any contacts stored.");
+		else	{
+			control = true;
+			while (control)	{
+				System.out.println("Enter <1> to update home telephone number, <2> to update work telephone number, <3> to update cellphone number, <4> to update the home address, <5> to update the work address, or any other integer to cancel.");
+				try	{
+					controlValue = Integer.parseInt(input.nextLine());
+					control = false;
+				} catch (NoSuchElementException e)  { 
+					System.err.println("No input - please try again.");
+				} catch (NumberFormatException e)	{
+					System.err.println("Integer input required. Please try again.");
+				} catch (IllegalStateException e)	{
+					System.err.println("Critical error - scanner closed.");
+					System.exit(1);
+				}
+		
+				if (controlValue == 1)	{
+					contactRoll[tempIndex].setHomeTelephoneNumber(scanForHomeTelephoneNumber());
+					try	{
+						output.writeObject(contactRoll[tempIndex]);
+					} catch (IOException e)	{
+						System.err.println("Error writing to file. Terminating.");
+						System.exit(1);
+					}	
+				}
+				else if (controlValue == 2)	{
+					contactRoll[tempIndex].setWorkTelephoneNumber(scanForWorkTelephoneNumber());
+					try	{
+						output.writeObject(contactRoll[tempIndex]);
+					} catch (IOException e)	{
+						System.err.println("Error writing to file. Terminating.");
+						System.exit(1);
+					}
+
+				}
+				else if (controlValue == 3)	{
+					contactRoll[tempIndex].setCellphoneNumber(scanForCellphoneNumber());
+					try	{
+						output.writeObject(contactRoll[tempIndex]);
+					} catch (IOException e)	{
+						System.err.println("Error writing to file. Terminating.");
+						System.exit(1);
+					}
+				
+				}
+				else if (controlValue == 4)	{
+					contactRoll[tempIndex].setHomeAddress(scanForAddress());
+					try	{
+						output.writeObject(contactRoll[tempIndex]);
+					} catch (IOException e)	{
+						System.err.println("Error writing to file. Terminating.");
+						System.exit(1);
+					}
+				}
+				else if (controlValue == 5)	{
+					contactRoll[tempIndex].setWorkAddress(scanForAddress());
+					try	{
+						output.writeObject(contactRoll[tempIndex]);
+					} catch (IOException e)	{
+						System.err.println("Error writing to file. Terminating.");
+						System.exit(1);
+					}
+				}
+				else	{
+					System.out.println("Invalid input. Update terminated.");
+					control = false;		
+				}
+			}	
+		}
+	}
+
 	public static void main(String[] args)	{
 		openFile(); 
 		readFile();
@@ -547,9 +638,9 @@ public class ContactsRoll	{
 		while (control)	{
 			System.out.println("Enter <1> to add a contact, <2> to search for and view a contact, <3> to search for and delete a contact, <4> to display all contacts, or any other integer to exit.");
 			try	{
-				controlValue = input.nextInt();
+				controlValue = Integer.parseInt(input.nextLine());
 			}
-			catch (InputMismatchException e)	{
+			catch (NumberFormatException e)	{
 				System.err.println("Integer input required. Please try again.");
 				input.nextLine();
 			}
@@ -568,6 +659,8 @@ public class ContactsRoll	{
 				deleteContact();
 			else if (controlValue == 4)
 				viewRoll();
+			else if (controlValue == 5)
+				updateContact();
 			else	{
 				control = false;
 				closeFile();
