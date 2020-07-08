@@ -25,8 +25,14 @@ public class Name implements Serializable	{
 		this.lastName = lastName;
 	}
 
+	public boolean equals(Name name)	{
+		boolean isEqual = false;
+		isEqual = (this.getFirstName().equals(name.getFirstName())) && (this.getLastName().equals(name.getLastName()));
+		return isEqual;
+	}
+
 	@Override
 	public String toString()	{
-		return String.format("%s, %s", lastName, firstName);
+		return String.format("%s %s", firstName, lastName);
 	}
 }

@@ -11,62 +11,20 @@ import java.util.InputMismatchException;
 
 public class ContactsRoll	{
 
-	private static int index = 0;
-	private static Contact[] contactRoll = new Contact[index+1];
+	private static Contact[] contactRoll = new Contact[1];
 	private static boolean control = true;
-	private static ObjectOutputStream output;
-	private static ObjectInputStream input;
 
-	private static void openFile()	{
-		try	{
-			output = new ObjectOutputStream(Files.newOutputStream(Paths.get("contacts.ser")));
-			input = new ObjectInputStream(Files.newInputStream(Paths.get("contacts.ser")));
+	//currently, this function does not work. A null pointer exception is thrown when this function is used. 
+	private static int search(Name name)	{
+		int i = 0;
+		for (i = 0; i < contactRoll.length; i++)	{
+			if (contactRoll[i].getName().equals(name))
+				break;
 		}
-		catch (IOException e)	{
-			System.err.println("Error opening file. Terminating.");
-			System.exit(1);
-		}
+		return i;
 	}
 
-	private static void closeFile()	{
-		try	{
-			if (output != null)
-				output.close();
-			if (input != null)
-				input.close();
-		}
-		catch	(IOException ioException)	{
-			System.err.println("Error closing file. Terminating.");
-			System.exit(1);
-		}
-	}
-
-	private static void readFile()	{
-		try	{
-			while (true)	{
-				Contact contact = (Contact) input.readObject();
-				contactRoll[index++] = contact;
-			}
-		}
-		catch (EOFException e)	{
-			;
-		}
-		catch (ClassNotFoundException e)	{
-			System.err.println("Invalid object type. Terminating.");
-			System.exit(1);
-		}
-		catch (IOException e)	{
-			System.err.println("Error reading from file. Terminating.");
-			System.exit(1);
-		}
-	}
-
-	private static int search(Contact[] contactArray, Name name)	{
-		Arrays.sort(contactArray);
-		int tempIndex = Arrays.binarySearch(contactArray, name);
-		return tempIndex;
-	}
-
+	//This function initialises a scanner, scans for two Strings, and calls the Name(String, String) constructor to create a Name object. 
 	private static Name scanForName()	{
 		Scanner input = new Scanner(System.in);
 		Name name = null;
@@ -106,6 +64,7 @@ public class ContactsRoll	{
 		return name;
 	}
 
+	//This function initialises a scanner, scans and returns a String as a home telephone number. 
 	private static String scanForHomeTelephoneNumber()	{
 		Scanner input = new Scanner(System.in);
 		String homeTelephoneNumber = null;
@@ -127,6 +86,7 @@ public class ContactsRoll	{
 		return homeTelephoneNumber;
 	}
 
+	//This function initialises a scanner, scan and returns a String as a work telephone number. 
 	private static String scanForWorkTelephoneNumber()	{
 		Scanner input = new Scanner(System.in);
 		String workTelephoneNumber = null;
@@ -148,6 +108,7 @@ public class ContactsRoll	{
 		return workTelephoneNumber;
 	}
 
+	//This function initialises a scanner, scans and returns a String as a cellphone number. 
 	private static String scanForCellphoneNumber()	{
 		Scanner input = new Scanner(System.in);
 		String cellphoneNumber = null;
@@ -169,17 +130,17 @@ public class ContactsRoll	{
 		return cellphoneNumber;
 	}
 
+	//This function initialises a scanner, scans for several strings and an int, constructs and returns an Address object. 
 	private static Address scanForAddress()	{
 		Address address = null;
-		String roadName = null, roadType = null, suburb = null, city = null, province = null, postalCode = null;
-		int houseNumber = 0;
+		String streetAddress = null, suburb = null, city = null, province = null, postalCode = null;
 		boolean control = true;
 		Scanner input = new Scanner(System.in);
 		
 		while (control)	{
-			System.out.println("Enter the house number of the contact's address, followed by <Enter>.");
+			System.out.println("Enter the street address of the contact's address, followed by <Enter>.");
 			try	{	
-				houseNumber = Integer.parseInt(input.nextLine());
+				streetAddress = input.nextLine();
 				control = false;
 			}
 			catch (NumberFormatException e)	{
@@ -195,38 +156,6 @@ public class ContactsRoll	{
 			}
 		}
 
-		control = true;
-		while (control)	{
-			System.out.println("Enter the road name of the contact's address, followed by <Enter>.");
-			try	{
-				roadName = input.nextLine();
-				control = false;
-			}
-			catch (NoSuchElementException e)	{
-				System.err.println("No input. Please try again.");
-			}
-			catch (IllegalStateException e)	{
-				System.err.println("Critical error - scanner is closed.");	
-				System.exit(1);
-			}
-		}
-
-		control = true;
-		while (control)	{
-		System.out.println("Enter the road type of the contact's address, followed by <Enter>.");
-			try	{
-				roadType = input.nextLine();
-				control = false;
-			}
-			catch (NoSuchElementException e)	{
-				System.err.println("No input. Please try again.");
-			}
-			catch (IllegalStateException e)	{
-				System.err.println("Critical error - scanner is closed.");
-				System.exit(1);
-			}
-		}
-		
 		control = true;
 		while (control)	{
 			System.out.println("Enter the suburb of the contact's address, followed by <Enter>.");
@@ -292,10 +221,11 @@ public class ContactsRoll	{
 			
 		}
 	
-		address = new Address(houseNumber, roadName, roadType, suburb, city, province, postalCode);
+		address = new Address(streetAddress, suburb, city, province, postalCode);
 		return address;
 	}
-
+	
+	//This function initialises a scanner, scans for several int's, constructs and returns a date object. 
 	private static Date scanForDateOfBirth()	{
 		Scanner input = new Scanner(System.in);
 		int day = 0, month = 0, year = 0;
@@ -363,9 +293,10 @@ public class ContactsRoll	{
 		dateOfBirth = new Date(day, month, year);
 		return dateOfBirth;	
 	}
-
-	private static void increaseArraySize()	{
-
+	
+	//This function creates a temporary Contact[], copies all the contacts out of the existing array, creates a new contactRoll[] with size contactroll.length + 1,
+	//and copies all the contacts into the new array. 
+	private static void increaseArrayLength()	{
 		if (contactRoll[0] == null)
 			;
 		else	{	
@@ -374,11 +305,13 @@ public class ContactsRoll	{
 			for (i = 0; i < contactRoll.length; i++)
 				tempArray[i] = contactRoll[i];
 			contactRoll = new Contact[tempArray.length+1];
-			for (i = 0; i < contactRoll.length; i++)
+			for (i = 0; i < tempArray.length; i++)
 				contactRoll[i] = tempArray[i];
 		}	
 	}
 
+	//This function creates a temporary Contact[], copies all the contacts out of the existing array, creates a new contactRoll[] with size contactroll.length - 1,
+	//and copies all the contacts into the new array.
 	private static void decreaseArrayLength()	{
 		if (contactRoll[0] == null)
 			System.out.println("There are no more entries in this array. ");
@@ -392,7 +325,65 @@ public class ContactsRoll	{
 				contactRoll[i] = tempArray[i];
 		}
 	}
+
+	//this function creates and object input stream, casts the objects in the stream as contacts and stores them in the contactRoll. 
+	private static void loadData()	{
+		int index = 0;
+		ObjectInputStream input = null;
+		try	{
+			input = new ObjectInputStream(Files.newInputStream(Paths.get("contacts.ser")));
+			while (true)	{
+				Contact contact = (Contact) input.readObject();
+				increaseArrayLength();
+				contactRoll[index++] = contact;
+			}
+		} catch (EOFException e)	{
+			;
+		} catch (IOException e)	{
+			System.err.println("Error opening file. Terminating.");
+			System.exit(1);
+		} catch (ClassNotFoundException e)	{
+			System.err.println("Invalid object type. Terminating.");
+			System.exit(1);
+		}
+		try	{
+			if (input != null)
+				input.close();
+		} catch (IOException e)	{
+			System.err.println("Error opening file. Terminating.");
+			System.exit(1);
+		}
+	}
+
+	//this function creates an object output stream and writes each object from contactRoll into contact.ser.
+	private static void storeData()	{
+		ObjectOutputStream output = null;
+		try	{
+			output = new ObjectOutputStream(Files.newOutputStream(Paths.get("contacts.ser")));
+		} catch (IOException e)	{
+			System.err.println("Error opening file. Terminating.");
+			System.exit(1);
+		}
+		for (Contact c : contactRoll)	{
+			try	{
+				output.writeObject(c);
+			} catch (IOException e)	{
+				System.err.println("Error opening file. Terminating.");
+				System.exit(1);
+			}
+		}
+		try	{
+			if (output != null)
+				output.close();
+		} catch (IOException e)	{
+			System.err.println("Error opening file. Terminating.");
+			System.exit(1);
+		}
+	}
 	
+	//This function calls various helper functions above to input name, telephone number, address and date objects in order to create a data object. 
+	//Once all of the input is received, a contact is created. Once the contact is created, contactRoll is scanned to determine if the contact is stored
+	//in the contact roll already. If not, the length of the array is increased, and this contact is added to the contact roll. 
 	public static void addContact()	{
 							
 		String homeTelephoneNumber = null, workTelephoneNumber = null, cellphoneNumber = null;
@@ -419,7 +410,7 @@ public class ContactsRoll	{
 		
 		boolean isDuplicate = false;
 		
-		if (index > 0)	{
+		if (contactRoll.length > 1)	{
 			for (Contact c : contactRoll)	{
 				isDuplicate = (c.getName().equals(contact.getName())) && (c.getDateOfBirth().equals(contact.getDateOfBirth()));
 				if (isDuplicate)
@@ -430,58 +421,22 @@ public class ContactsRoll	{
 		if (isDuplicate)
 			System.out.println("The contact details you are adding have already been saved. Try updating the contact.");
 		else	{
-				increaseArraySize();
-				contactRoll[index++] = contact;
-				try	{
-					output.writeObject(contact);
-				}
-				catch (IOException e)	{
-					System.err.println("Error writing to file. Terminating.");
-					System.exit(1);
-				}
+				increaseArrayLength();
+				contactRoll[contactRoll.length-1] = contact;
+			}
 				System.out.println("Contact saved to the data structure successfully. Operation terminated.");
-		}
 	}
 
+	//This function initialises a scanner, accepts two Strings, constructs a Name object and then iterates over the contactRoll to determine if a contact item
+	//with the Name object created is stored in the contactRoll[]. If not, the function reports that no contact with the specified name is stored. If yes, the
+	//function sets the contactRoll[index] to null, reduces the size of the array and exits the function.  
 	public static void deleteContact()	{
 		int tempIndex = 0;
 		boolean control = true;
 		String firstName = null, lastName = null;
 		Name name = null;
-		Scanner input = new Scanner(System.in);
-		
-		while (control)	{
-			System.out.println("Enter the last name followed by <Enter>.");
-			try	{
-				lastName = input.nextLine();
-				control = false;
-			}
-			catch (NoSuchElementException e)	{
-				System.err.println("No input. Please try again.");
-			}
-			catch (IllegalStateException e)	{
-				System.err.println("Critical error - scanner closed.");
-				System.exit(1);
-			}
-		}
-
-		while (control)	{
-			System.out.println("Enter the first name, followed by <Enter>.");
-			try	{
-				firstName = input.nextLine();
-				control = false;
-			}
-			catch (NoSuchElementException e)	{
-				System.err.println("No input. Please try again.");
-			}
-			catch (IllegalStateException e)	{
-				System.err.println("Critical error - scanner closed.");
-				System.exit(1);
-			}
-		}
-		name = new Name(firstName, lastName);
-		
-		tempIndex = search(contactRoll, name);
+		name = scanForName();
+		tempIndex = search(name);
 		if (tempIndex == -1)
 			System.out.println("No record found of referenced contact.");
 		else	{
@@ -494,77 +449,46 @@ public class ContactsRoll	{
 		}
 	}
 
+	//This function scans for two Strings, constructs a Name object, searches contactRoll[] for the Name object and if found, displays a String representation of
+	//the contact. 
 	public static void displayContact()	{
 		int tempIndex = 0;
 		boolean control = true;
-		String firstName = null, lastName = null;
 		Name name = null;
-		Scanner input = new Scanner(System.in);
-		
-		while (control)	{
-			System.out.println("Enter the last name followed by <Enter>.");
-			try	{
-				lastName = input.nextLine();
-				control = false;
-			}
-			catch (NoSuchElementException e)	{
-				System.err.println("No input - please try again.");
-			}
-			catch (IllegalStateException e)	{
-				System.err.println("Critical error - scanner closed.");
-				System.exit(1);
-			}
-		}
-
-		while (control)	{
-			System.out.println("Enter the first name, followed by <Enter>.");
-			try	{
-				firstName = input.nextLine();
-				control = false;
-			}
-			catch (NoSuchElementException e)	{
-				System.err.println("No input - please try again.");
-			}
-			catch (IllegalStateException e)	{
-				System.err.println("Critical error - scanner closed.");
-				System.exit(1);
-			}
-		}
-		name = new Name(firstName, lastName);
-		
-		Arrays.sort(contactRoll);
-		tempIndex = search(contactRoll, name);
+		name = scanForName();
+		tempIndex = search(name);
+		System.out.println(tempIndex);
 		if (tempIndex == -1)
 			System.out.println("There is no record of the refenced contact.");
 		else
 			System.out.println(contactRoll[tempIndex].toString());
 	}
-
+	//This function streams all contacts in contactRoll[] and prints the String representation of each. 
 	public static void viewRoll()	{
 		for(Contact c : contactRoll)
 			System.out.println(c.toString());
 	}
 
+	//This function accepts a Name object as input, searches the contactRoll[] and determines where in the contactRoll[] the required contact is. If not found, the
+	//function returns a message asserting that no matching contact is found. If found a scanner is initialised, and integer input is accepted which determines 
+	//which part of the contact is to be updated. The requisite helper function is called and the necessary set method for contactRoll[i] is called to update 
+	//contact. Once updates are done, function exits. 
 	public static void updateContact()	{
 		Name name = null;
 		int tempIndex = 0, controlValue = 0;
 		boolean control = true;
 
 		name = scanForName();
-		Arrays.sort(contactRoll);
-		tempIndex = search(contactRoll, name);
+		tempIndex = search(name);
 		Scanner input = new Scanner(System.in);
-		while (control)	{
-			}
 		if (tempIndex == -1)
 			System.out.println("Name entered does not match any contacts stored.");
 		else	{
 			control = true;
 			while (control)	{
-				System.out.println("Enter <1> to update home telephone number, <2> to update work telephone number, <3> to update cellphone number, <4> to update the home address, <5> to update the work address, or any other integer to cancel.");
+				System.out.println("Enter <1> to update home telephone number, <2> to update work telephone number, <3> to update cellphone number, <4> to update the home address, <5> to update the work address,\n or <6> to cancel.");
 				try	{
 					controlValue = Integer.parseInt(input.nextLine());
-					control = false;
 				} catch (NoSuchElementException e)  { 
 					System.err.println("No input - please try again.");
 				} catch (NumberFormatException e)	{
@@ -573,70 +497,57 @@ public class ContactsRoll	{
 					System.err.println("Critical error - scanner closed.");
 					System.exit(1);
 				}
-		
+			
 				if (controlValue == 1)	{
-					contactRoll[tempIndex].setHomeTelephoneNumber(scanForHomeTelephoneNumber());
-					try	{
-						output.writeObject(contactRoll[tempIndex]);
-					} catch (IOException e)	{
-						System.err.println("Error writing to file. Terminating.");
-						System.exit(1);
-					}	
+					String homeTelephoneNumber = null;
+					homeTelephoneNumber = scanForHomeTelephoneNumber();
+					contactRoll[tempIndex].setHomeTelephoneNumber(homeTelephoneNumber);
+					System.out.println("Home telephone number updated.");
 				}
 				else if (controlValue == 2)	{
-					contactRoll[tempIndex].setWorkTelephoneNumber(scanForWorkTelephoneNumber());
-					try	{
-						output.writeObject(contactRoll[tempIndex]);
-					} catch (IOException e)	{
-						System.err.println("Error writing to file. Terminating.");
-						System.exit(1);
-					}
-
+					String workTelephoneNumber = null;
+					workTelephoneNumber = scanForWorkTelephoneNumber();
+					contactRoll[tempIndex].setWorkTelephoneNumber(workTelephoneNumber);				
+					System.out.println("Work telephone number updated.");
 				}
 				else if (controlValue == 3)	{
-					contactRoll[tempIndex].setCellphoneNumber(scanForCellphoneNumber());
-					try	{
-						output.writeObject(contactRoll[tempIndex]);
-					} catch (IOException e)	{
-						System.err.println("Error writing to file. Terminating.");
-						System.exit(1);
-					}
-				
+					String cellphoneNumber = null;
+					cellphoneNumber = scanForCellphoneNumber();
+					contactRoll[tempIndex].setCellphoneNumber(cellphoneNumber);
+					System.out.println("Cellphone number updated.");
 				}
 				else if (controlValue == 4)	{
-					contactRoll[tempIndex].setHomeAddress(scanForAddress());
-					try	{
-						output.writeObject(contactRoll[tempIndex]);
-					} catch (IOException e)	{
-						System.err.println("Error writing to file. Terminating.");
-						System.exit(1);
-					}
+					Address homeAddress = null;
+					homeAddress = scanForAddress();
+					contactRoll[tempIndex].setHomeAddress(homeAddress);
+					System.out.println("Home address updated.");
 				}
 				else if (controlValue == 5)	{
-					contactRoll[tempIndex].setWorkAddress(scanForAddress());
-					try	{
-						output.writeObject(contactRoll[tempIndex]);
-					} catch (IOException e)	{
-						System.err.println("Error writing to file. Terminating.");
-						System.exit(1);
-					}
+					Address workAddress = null;
+					workAddress = scanForAddress();
+					contactRoll[tempIndex].setWorkAddress(workAddress);
+					System.out.println("Work address updated.");
+				}	
+				else if (controlValue == 6)	{
+					System.out.println("Updated terminated.");
+					control = false;
 				}
 				else	{
-					System.out.println("Invalid input. Update terminated.");
-					control = false;		
-				}
+					System.out.println("Invalid input. Please try again.");		
+				} 
 			}	
 		}
 	}
 
-	public static void main(String[] args)	{
-		openFile(); 
-		readFile();
+	//This function controls the program. It initialises a scanner, calls loadData() to populate contactRoll[], and accepts an integer input. Based on the input, 
+	//the various functions are called. The function exits and stores the contents of contactRoll[] in contacts.ser. 
+	public static void main(String[] args)	{ 
+		loadData();
 		int controlValue = 0;
 		boolean control = true;
 		Scanner input = new Scanner(System.in);
 		while (control)	{
-			System.out.println("Enter <1> to add a contact, <2> to search for and view a contact, <3> to search for and delete a contact, <4> to display all contacts, or any other integer to exit.");
+			System.out.println("Enter <1> to add a contact, <2> to search for and view a contact, <3> to search for and delete a contact, <4> to display all contacts, <5> to update a contact,\nor any other integer to exit.");
 			try	{
 				controlValue = Integer.parseInt(input.nextLine());
 			}
@@ -663,7 +574,7 @@ public class ContactsRoll	{
 				updateContact();
 			else	{
 				control = false;
-				closeFile();
+				storeData();
 			}
 		}
 		System.out.println("Exit option selected. Program terminated.");

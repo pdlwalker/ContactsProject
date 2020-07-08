@@ -2,46 +2,26 @@ import java.io.Serializable;
 
 public class Address implements Serializable	{
 
-	private int houseNumber;
-	private String roadName;
-	private String roadType;
+	private String streetAddress;
 	private String suburb;
 	private String city;
 	private String province;
 	private String postalCode;
 
-	public Address (int houseNumber, String roadName, String roadType, String suburb, String city, String province, String postalCode)	{
-		this.houseNumber = houseNumber;
-		this.roadName = roadName;
-		this.roadType = roadType;
+	public Address (String streetAddress, String suburb, String city, String province, String postalCode)	{
+		this.streetAddress = streetAddress;
 		this.suburb = suburb;
 		this.city = city;
 		this.province = province;
 		this.postalCode = postalCode;
 	}	
 
-	public int getHouseNumber()	{
-		return houseNumber;
+	public String getStreetAddress()	{
+		return streetAddress;
 	}
 
-	public void setHouseNumber(int houseNumber)	{
-		this.houseNumber = houseNumber;
-	}
-
-	public String getRoadName()	{
-		return roadName;
-	}
-
-	public void setRoadName(String roadName)	{
-		this.roadName = roadName;
-	}
-
-	public String getRoadType()	{
-		return roadType;
-	}
-
-	public void setRoadType(String roadType)	{
-		this.roadType = roadType;
+	public void setStreetAddress(String streetAddress)	{
+		this.streetAddress = streetAddress;
 	}
 
 	public String getSuburb()	{
@@ -77,6 +57,6 @@ public class Address implements Serializable	{
 	}
 
 	public String toString()	{
-		return String.format("%s %s %s%n%s%n%s%n%s%n%s%n%s", houseNumber, roadName, roadType, suburb, city, province, postalCode);
+		return String.format("%s%n%s%n%s%n%s%n%s%n", streetAddress, suburb, city, province, postalCode);
 	}
 }
